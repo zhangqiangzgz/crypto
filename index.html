@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AES加密</title>
+</head>
+
+<body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"
+    integrity="sha512-E8QSvWZ0eCLGk4km3hxSsNmGWbLtSCSUcewDQPQWZF6pEU8GlT8a5fF32wOl1i8ftdMhssTrF/OhyGWwonTcXA=="
+    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+<script type="module">
+  console.log(CryptoJS)
+  const content = '你好，服务端...'
+  // 将十六进制解密为WordArray对象
+  const key = CryptoJS.enc.Hex.parse('745731af4484f323968969eda289aeee005b5903ac561e64a5aca121797bf773')
+  const iv = CryptoJS.enc.Hex.parse('00000000000000000000000000000000')
+
+  const encryt = (value) => {
+    const encryptedValue = CryptoJS.AES.encrypt(value, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC, // 使用 CBC 模式
+      padding: CryptoJS.pad.Pkcs7, // 使用 PKCS7 填充
+    }).toString()
+    console.log('encryptedValue', encryptedValue)
+    return encryptedValue
+  }
+  const decrypt = (value) => {
+    const decrptedValue = CryptoJS.AES.decrypt(value, key, {
+      iv: iv,
+      mode: CryptoJS.mode.CBC, // 使用 CBC 模式
+      padding: CryptoJS.pad.Pkcs7, // 使用 PKCS7 填充
+    }).toString(CryptoJS.enc.Utf8)
+    console.log('decryptedValue', decrptedValue)
+    return decrptedValue
+  }
+
+  const result = await fetch('http://localhost:3000/crypto', {
+    method: 'POST',
+    body: JSON.stringify({
+      content: encryt(content)
+    }),
+    headers: {
+      'content-type': 'application/json'
+    }
+  })
+  const text = await result.text()
+  console.log('返回密文', text)
+  decrypt(text)
+
+</script>
+
+</html>
